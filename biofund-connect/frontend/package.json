@@ -1,0 +1,33 @@
+{
+    "name": "biofund-connect-frontend",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@heroicons/react": "^2.2.0",
+        "axios": "^1.13.5",
+        "chart.js": "^4.5.1",
+        "framer-motion": "^12.34.3",
+        "i18next": "^25.8.13",
+        "leaflet": "^1.9.4",
+        "lottie-react": "^2.4.1",
+        "lucide-react": "^0.575.0",
+        "react-chartjs-2": "^5.3.1",
+        "react-countup": "^6.5.3",
+        "react-i18next": "^16.5.4",
+        "react-leaflet": "^5.0.0",
+        "react-router-dom": "^7.13.1"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-react": "^5.1.4",
+        "autoprefixer": "^10.4.24",
+        "postcss": "^8.5.6",
+        "tailwindcss": "^3.4.19",
+        "vite": "^7.3.1"
+    }
+}

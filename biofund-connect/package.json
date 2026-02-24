@@ -1,0 +1,15 @@
+{
+    "name": "biofund-connect",
+    "version": "1.0.0",
+    "description": "BioFund Connect - Root",
+    "scripts": {
+        "start": "node backend/server",
+        "server": "cd backend && npm run dev",
+        "client": "cd frontend && npm run dev",
+        "dev": "concurrently \"npm run server\" \"npm run client\"",
+        "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+    },
+    "dependencies": {
+        "concurrently": "^8.2.2"
+    }
+}
