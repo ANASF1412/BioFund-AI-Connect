@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { LayoutDashboard, Compass, Briefcase, PlusCircle, Users, Activity, LeafyGreen } from 'lucide-react';
+import { LayoutDashboard, Compass, Briefcase, PlusCircle, Users, Activity, LeafyGreen, MapPin, Globe } from 'lucide-react';
 
 const Sidebar = () => {
     const { user } = useAuth();
@@ -12,6 +12,7 @@ const Sidebar = () => {
                 return [
                     { name: 'Impact Dashboard', path: '/investor', icon: <LayoutDashboard size={20} /> },
                     { name: 'Explore Bio-Projects', path: '/investor/explore', icon: <Compass size={20} /> },
+                    { name: 'Live Impact Map', path: '/investor/map', icon: <MapPin size={20} /> },
                     { name: 'My Portfolio', path: '/investor/investments', icon: <Briefcase size={20} /> },
                     { name: 'Global Impact Tracker', path: '/investor/tracker', icon: <Activity size={20} /> },
                 ];

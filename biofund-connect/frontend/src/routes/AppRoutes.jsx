@@ -8,12 +8,16 @@ import { useAuth } from '../hooks/useAuth';
 import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
 import Home from '../pages/Home';
+import ImpactMap from '../pages/ImpactMap';
+import Notifications from '../pages/Notifications';
 
 // Investor Pages
 import InvestorDashboard from '../pages/investor/Dashboard';
 import ExploreProjects from '../pages/investor/ExploreProjects';
+import ProjectDetail from '../pages/investor/ProjectDetail';
 import MyInvestments from '../pages/investor/MyInvestments';
 import ImpactTracker from '../pages/investor/ImpactTracker';
+import Reports from '../pages/investor/Reports';
 
 // NGO Pages
 import NgoDashboard from '../pages/ngo/Dashboard';
@@ -44,6 +48,9 @@ const AppRoutes = () => {
             <Route element={<MainLayout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/explore" element={<ExploreProjects />} />
+                <Route path="/project/:id" element={<ProjectDetail />} />
+                <Route path="/map" element={<ImpactMap />} />
+                <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
             </Route>
@@ -54,8 +61,12 @@ const AppRoutes = () => {
             <Route path="/investor" element={<ProtectedRoute roles={['Investor']}><DashboardLayout /></ProtectedRoute>}>
                 <Route index element={<InvestorDashboard />} />
                 <Route path="explore" element={<ExploreProjects />} />
+                <Route path="map" element={<ImpactMap />} />
+                <Route path="project/:id" element={<ProjectDetail />} />
                 <Route path="investments" element={<MyInvestments />} />
                 <Route path="tracker" element={<ImpactTracker />} />
+                <Route path="reports" element={<Reports />} />
+                <Route path="notifications" element={<Notifications />} />
             </Route>
 
             {/* NGO Routes */}

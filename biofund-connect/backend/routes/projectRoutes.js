@@ -5,6 +5,7 @@ const {
     getProjectById,
     createProject,
     updateProjectStatus,
+    postProjectUpdate,
 } = require('../controllers/projectController');
 const { protect } = require('../middleware/authMiddleware');
 const { authorize } = require('../middleware/roleMiddleware');
@@ -18,5 +19,8 @@ router.route('/:id')
 
 router.route('/:id/status')
     .put(protect, authorize('Admin'), updateProjectStatus);
+
+router.route('/:id/update')
+    .post(protect, authorize('NGO'), postProjectUpdate);
 
 module.exports = router;

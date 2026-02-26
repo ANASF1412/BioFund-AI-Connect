@@ -1,35 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import projectService from '../../services/projectService';
-import transactionService from '../../services/transactionService';
+import fundingService from '../../services/fundingService';
 import Loader from '../../components/common/Loader';
 import { motion } from 'framer-motion';
-import { Sprout, Droplets, Target, ShieldCheck, TreePine, Medal } from 'lucide-react';
+import { Sprout, Droplets, Target, ShieldCheck, TreePine, Medal, TrendingUp, Calendar, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const InvestorDashboard = () => {
     const { user } = useAuth();
-    const [data, setData] = useState({ transactions: [], recentProjects: [] });
+    const [data, setData] = useState({ investments: [], stats: { totalInvested: 0, projectsSupported: 0, fundingCount: 0 }, recentProjects: [] });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [transRes, projRes] = await Promise.all([
-                    transactionService.getTransactions(),
+                const [fundingRes, projRes] = await Promise.all([
+                    fundingService.getMyInvestments(),
                     projectService.getProjects()
                 ]);
                 const approvedProjects = projRes.data.filter(p => p.status === 'Approved');
-                setData({ transactions: transRes.data, recentProjects: approvedProjects.slice(0, 3) });
-            } catch (error) { console.error(error); } finally { setLoading(false); }
+                setData({
+                    investments: fundingRes.investments || [],
+                    stats: fundingRes.stats || { totalInvested: 0, projectsSupported: 0, fundingCount: 0 },
+                    recentProjects: approvedProjects.slice(0, 3)
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                setData({ investments: [], stats: { totalInvested: 0, projectsSupported: 0, fundingCount: 0 }, recentProjects: [] });
+            } finally {
+                setLoading(false);
+            }
         };
         fetchData();
     }, []);
 
     if (loading) return <Loader />;
 
-    const totalInvested = data.transactions.reduce((acc, curr) => acc + curr.amount, 0);
-    const supportedCount = new Set(data.transactions.map(t => t.projectId._id)).size;
+    const totalInvested = data.stats.totalInvested || 0;
+    const supportedCount = data.stats.projectsSupported || 0;
+    const fundingCount = data.stats.fundingCount || 0;
 
     // Render Badges safely incase it doesn't exist on older seeded users
     const userBadges = user.badges || ['Early Adopter'];
@@ -60,11 +70,14 @@ const InvestorDashboard = () => {
                         <div className="p-3 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400">
                             <Sprout size={28} />
                         </div>
-                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/50 px-2 py-1 rounded-full">+12% this month</span>
+                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/50 px-2 py-1 rounded-full flex items-center gap-1">
+                            <TrendingUp size={12} /> +12% this month
+                        </span>
                     </div>
                     <div>
-                        <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Total Impact Funded</p>
+                        <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Total Invested</p>
                         <p className="text-4xl font-black text-slate-900 dark:text-white font-sans">${totalInvested.toLocaleString()}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Across {fundingCount} investment{fundingCount !== 1 ? 's' : ''}</p>
                     </div>
                 </motion.div>
 
@@ -77,6 +90,7 @@ const InvestorDashboard = () => {
                     <div>
                         <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Projects Supported</p>
                         <p className="text-4xl font-black text-slate-900 dark:text-white font-sans">{supportedCount}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Active conservation efforts</p>
                     </div>
                 </motion.div>
 
@@ -97,6 +111,27 @@ const InvestorDashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="lg:col-span-2 bg-gradient-to-br from-primary-600 to-primary-700 dark:from-primary-900 dark:to-primary-800 rounded-2xl shadow-lg border border-primary-500/30 p-8 relative overflow-hidden"
+                >
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/asfalt-light.png')] opacity-5"></div>
+                    <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                        <div>
+                            <h2 className="text-2xl font-black text-white mb-2">Discover Projects on the Live Impact Map</h2>
+                            <p className="text-primary-100 text-sm font-medium">Visualize conservation projects globally and see their funding progress in real-time.</p>
+                        </div>
+                        <Link
+                            to="/investor/map"
+                            className="px-6 py-3 bg-white hover:bg-slate-50 text-primary-600 font-bold rounded-xl transition-colors shadow-lg whitespace-nowrap"
+                        >
+                            <MapPin size={18} className="inline mr-2" /> View Map
+                        </Link>
+                    </div>
+                </motion.div>
+
                 <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-sm border border-slate-100 dark:border-dark-800 p-6 overflow-hidden relative">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-lg font-bold text-slate-900 dark:text-white">Suggested Discoveries</h2>
@@ -123,20 +158,30 @@ const InvestorDashboard = () => {
 
                 <div className="bg-white dark:bg-dark-800 rounded-2xl shadow-sm border border-slate-100 dark:border-dark-800 p-6">
                     <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Recent Funding</h2>
+                        <h2 className="text-lg font-bold text-slate-900 dark:text-white">My Investments</h2>
+                        <Link to="/investor/investments" className="text-sm font-bold text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">View All</Link>
                     </div>
                     <div className="space-y-4">
-                        {data.transactions.length === 0 ? (
-                            <div className="text-center py-10 text-slate-500 dark:text-slate-400 text-sm">No activity yet. Fund a project!</div>
+                        {data.investments.length === 0 ? (
+                            <div className="text-center py-10">
+                                <Sprout className="mx-auto mb-3 text-slate-300 dark:text-slate-700" size={32} />
+                                <p className="text-slate-500 dark:text-slate-400 text-sm">No investments yet. Start funding projects!</p>
+                                <Link to="/investor/explore" className="mt-3 inline-block text-sm font-bold text-primary-500 hover:text-primary-600 dark:hover:text-primary-400">
+                                    Explore Projects
+                                </Link>
+                            </div>
                         ) : (
-                            data.transactions.slice(0, 4).map(tx => (
-                                <div key={tx._id} className="flex items-center justify-between p-3 border-b border-slate-100 dark:border-dark-800 last:border-0">
-                                    <div>
-                                        <p className="font-bold text-sm text-slate-900 dark:text-white">{tx.projectId?.title || 'Eco Project'}</p>
-                                        <p className="text-xs text-slate-500">{new Date(tx.createdAt).toLocaleDateString()}</p>
+                            data.investments.slice(0, 4).map(inv => (
+                                <div key={inv._id} className="flex items-center justify-between p-3 border-b border-slate-100 dark:border-dark-800 last:border-0">
+                                    <div className="flex-1">
+                                        <p className="font-bold text-sm text-slate-900 dark:text-white">{inv.projectId?.title || 'Project'}</p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
+                                            <Calendar size={12} /> {new Date(inv.createdAt).toLocaleDateString()}
+                                        </p>
                                     </div>
                                     <div className="text-right">
-                                        <p className="font-black text-emerald-500">${tx.amount.toLocaleString()}</p>
+                                        <p className="font-black text-emerald-500">${inv.amount.toLocaleString()}</p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold capitalize">{inv.status}</p>
                                     </div>
                                 </div>
                             ))

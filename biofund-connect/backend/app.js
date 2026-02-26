@@ -9,6 +9,10 @@ const userRoutes = require('./routes/userRoutes');
 const projectRoutes = require('./routes/projectRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const milestoneRoutes = require('./routes/milestoneRoutes');
+const fundingRoutes = require('./routes/fundingRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const reportRoutes = require('./routes/reportRoutes');
+const insightRoutes = require('./routes/insightRoutes');
 
 const app = express();
 
@@ -25,6 +29,10 @@ app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/milestones', milestoneRoutes);
+app.use('/api/funding', fundingRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/insights', insightRoutes);
 
 // Error Middleware
 app.use(notFound);

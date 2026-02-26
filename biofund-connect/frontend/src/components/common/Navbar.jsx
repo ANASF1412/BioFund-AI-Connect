@@ -5,6 +5,7 @@ import { useAppContext } from '../../context/AppContext';
 import { Leaf, LogOut, Sun, Moon, Type, Globe, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import NotificationBell from './NotificationBell';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
@@ -49,6 +50,7 @@ const Navbar = () => {
 
                         {user ? (
                             <div className="flex items-center gap-4">
+                                <NotificationBell />
                                 <Link to="/dashboard" className="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
                                     Dashboard
                                 </Link>
