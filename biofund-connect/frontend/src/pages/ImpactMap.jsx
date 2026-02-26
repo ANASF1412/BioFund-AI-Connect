@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import projectService from '../../services/projectService';
-import Loader from '../../components/common/Loader';
+import projectService from '../services/projectService';
+import Loader from '../components/common/Loader';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Droplets, TreePine, Leaf, Globe, Filter, X, MapPin, TrendingUp, Users,

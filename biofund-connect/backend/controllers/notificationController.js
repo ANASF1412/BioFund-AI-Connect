@@ -1,5 +1,5 @@
 const Notification = require('../models/Notification');
-const responseHandler = require('../utils/responseHandler');
+const { sendSuccess, sendError } = require('../utils/responseHandler');
 
 // Get all notifications for logged-in user
 exports.getNotifications = async (req, res) => {
@@ -15,13 +15,13 @@ exports.getNotifications = async (req, res) => {
             read: false,
         });
 
-        return responseHandler.success(res, {
+        return sendSuccess(res, 200, 'Notifications retrieved', {
             notifications,
             unreadCount,
         });
     } catch (error) {
         console.error('Error fetching notifications:', error);
-        return responseHandler.error(res, 'Failed to fetch notifications', 500);
+        return sendError(res, 500, 'Failed to fetch notifications');
     }
 };
 
@@ -37,13 +37,13 @@ exports.markAsRead = async (req, res) => {
         );
 
         if (!notification) {
-            return responseHandler.error(res, 'Notification not found', 404);
+            return sendError(res, 404, 'Notification not found');
         }
 
-        return responseHandler.success(res, { notification }, 'Notification marked as read');
+        return sendSuccess(res, 200, 'Notification marked as read', { notification });
     } catch (error) {
         console.error('Error marking notification as read:', error);
-        return responseHandler.error(res, 'Failed to mark notification as read', 500);
+        return sendError(res, 500, 'Failed to mark notification as read');
     }
 };
 
@@ -55,10 +55,10 @@ exports.markAllAsRead = async (req, res) => {
             { read: true }
         );
 
-        return responseHandler.success(res, result, 'All notifications marked as read');
+        return sendSuccess(res, 200, 'All notifications marked as read', result);
     } catch (error) {
         console.error('Error marking all notifications as read:', error);
-        return responseHandler.error(res, 'Failed to mark all notifications as read', 500);
+        return sendError(res, 500, 'Failed to mark all notifications as read');
     }
 };
 
@@ -92,12 +92,13 @@ exports.deleteNotification = async (req, res) => {
         });
 
         if (!notification) {
-            return responseHandler.error(res, 'Notification not found', 404);
+            return sendError(res, 404, 'Notification not found');
         }
 
-        return responseHandler.success(res, null, 'Notification deleted');
+        return sendSuccess(res, 200, 'Notification deleted', null);
     } catch (error) {
         console.error('Error deleting notification:', error);
-        return responseHandler.error(res, 'Failed to delete notification', 500);
+        return sendError(res, 500, 'Failed to delete notification');
     }
 };
+

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, Check, Clock, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import notificationService from '../../services/notificationService';
-import Loader from '../../components/common/Loader';
+import notificationService from '../services/notificationService';
+import Loader from '../components/common/Loader';
 import { motion } from 'framer-motion';
 
 const NotificationsPage = () => {

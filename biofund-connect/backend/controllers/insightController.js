@@ -4,7 +4,7 @@
  */
 
 const insightService = require('../services/insightService');
-const { successResponse, errorResponse } = require('../utils/responseHandler');
+const { sendSuccess, sendError } = require('../utils/responseHandler');
 
 /**
  * Get project insights
@@ -16,10 +16,10 @@ const getProjectInsights = async (req, res) => {
 
         const insights = await insightService.getProjectInsights(projectId);
 
-        return successResponse(res, insights, 'Insights generated successfully', 200);
+        return sendSuccess(res, 200, 'Insights generated successfully', insights);
     } catch (error) {
         console.error('Error in getProjectInsights:', error);
-        return errorResponse(res, error.message, 500);
+        return sendError(res, 500, error.message);
     }
 };
 
@@ -33,10 +33,10 @@ const getImpactPrediction = async (req, res) => {
 
         const prediction = await insightService.predictImpact(projectId);
 
-        return successResponse(res, prediction, 'Impact prediction generated', 200);
+        return sendSuccess(res, 200, 'Impact prediction generated', prediction);
     } catch (error) {
         console.error('Error in getImpactPrediction:', error);
-        return errorResponse(res, error.message, 500);
+        return sendError(res, 500, error.message);
     }
 };
 
@@ -50,10 +50,10 @@ const getFundingPrediction = async (req, res) => {
 
         const prediction = await insightService.predictFunding(projectId);
 
-        return successResponse(res, prediction, 'Funding prediction generated', 200);
+        return sendSuccess(res, 200, 'Funding prediction generated', prediction);
     } catch (error) {
         console.error('Error in getFundingPrediction:', error);
-        return errorResponse(res, error.message, 500);
+        return sendError(res, 500, error.message);
     }
 };
 
@@ -67,10 +67,10 @@ const getTrends = async (req, res) => {
 
         const trends = await insightService.getImpactTrends(projectId);
 
-        return successResponse(res, trends, 'Trends analysis generated', 200);
+        return sendSuccess(res, 200, 'Trends analysis generated', trends);
     } catch (error) {
         console.error('Error in getTrends:', error);
-        return errorResponse(res, error.message, 500);
+        return sendError(res, 500, error.message);
     }
 };
 
@@ -84,10 +84,10 @@ const getRecommendation = async (req, res) => {
 
         const recommendation = await insightService.generateRecommendation(projectId);
 
-        return successResponse(res, recommendation, 'Recommendation generated', 200);
+        return sendSuccess(res, 200, 'Recommendation generated', recommendation);
     } catch (error) {
         console.error('Error in getRecommendation:', error);
-        return errorResponse(res, error.message, 500);
+        return sendError(res, 500, error.message);
     }
 };
 

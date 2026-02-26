@@ -406,12 +406,6 @@ const generateProjectReport = async (req, res) => {
     }
 };
 
-module.exports = {
-    generateProjectReport,
-    getMyReports,
-    getESGScorePreview,
-};
-
 // @desc    Get all reports for logged-in investor
 // @route   GET /api/reports
 // @access  Private/Investor
@@ -480,4 +474,10 @@ const getESGScorePreview = async (req, res) => {
         console.error('Error fetching ESG preview:', error);
         return sendError(res, 500, 'Failed to fetch ESG score preview');
     }
+};
+
+module.exports = {
+    generateProjectReport,
+    getMyReports,
+    getESGScorePreview,
 };
