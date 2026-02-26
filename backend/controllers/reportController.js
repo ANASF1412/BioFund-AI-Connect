@@ -11,7 +11,7 @@ const INDUSTRY_BENCHMARK = 65;
 
 // @desc    Generate ESG Report PDF for a project
 // @route   GET /api/reports/project/:projectId
-// @access  Private/Investor (only investor who funded the project)
+// @access  Private/Investor or NGO (investor who funded or NGO who created)
 const generateProjectReport = async (req, res) => {
     try {
         const { projectId } = req.params;
@@ -23,14 +23,15 @@ const generateProjectReport = async (req, res) => {
             return sendError(res, 404, 'Project not found');
         }
 
-        // Verify investor funded this project
+        // Verify investor funded this project OR user is the NGO who created it
+        const isNGOCreator = project.createdBy._id.toString() === investorId.toString();
         const funding = await Funding.findOne({
             projectId,
             investorId,
         });
 
-        if (!funding) {
-            return sendError(res, 403, 'You have not funded this project');
+        if (!funding && !isNGOCreator) {
+            return sendError(res, 403, 'You have not funded this project or are not the project creator');
         }
 
         // Get investor details
@@ -55,7 +56,9 @@ const generateProjectReport = async (req, res) => {
         const esgScore = calculateESGScore(project, allFundings);
 
         // ===== CALCULATE IMPACT ROI =====
-        const impactROI = calculateImpactROI(project, funding);
+        // For NGO creators, use the total project amount as the impact basis
+        const impactBasis = funding || { amount: project.currentAmount };
+        const impactROI = calculateImpactROI(project, impactBasis);
 
         // ===== GENERATE REPORT REFERENCE ID =====
         const referenceId = generateReportReferenceID();
@@ -170,25 +173,31 @@ const generateProjectReport = async (req, res) => {
             .font('Helvetica')
             .text(performanceText, { marginBottom: 15 });
 
-        // ===== SECTION 3: INVESTOR DETAILS =====
+        // ===== SECTION 3: INVESTOR/CREATOR DETAILS =====
         doc.fontSize(14)
             .font('Helvetica-Bold')
-            .text('INVESTOR DETAILS', { underline: true })
+            .text(isNGOCreator ? 'PROJECT CREATOR DETAILS' : 'INVESTOR DETAILS', { underline: true })
             .moveDown(0.5);
 
         doc.fontSize(11)
             .font('Helvetica')
             .text(`Name: ${investor.name}`)
-            .text(`Email: ${investor.email}`)
-            .text(`Investment Amount: $${funding.amount.toLocaleString()}`)
-            .text(
-                `Investment Date: ${new Date(funding.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                })}`,
-                { marginBottom: 15 }
-            );
+            .text(`Email: ${investor.email}`);
+        
+        if (funding) {
+            doc.text(`Investment Amount: $${funding.amount.toLocaleString()}`)
+                .text(
+                    `Investment Date: ${new Date(funding.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                    })}`,
+                    { marginBottom: 15 }
+                );
+        } else {
+            doc.text(`Role: Project Creator (NGO)`)
+                .text(`Total Funds Raised: $${project.currentAmount.toLocaleString()}`, { marginBottom: 15 });
+        }
 
         // ===== SECTION 4: PROJECT DETAILS =====
         doc.fontSize(14)

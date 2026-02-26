@@ -20,15 +20,17 @@ const registerUser = async (req, res) => {
             email,
             password,
             role: role || 'Investor',
+            status: 'pending'  // New users start as pending
         });
 
         if (user) {
-            sendSuccess(res, 201, 'User registered successfully', {
+            sendSuccess(res, 201, 'User registered successfully. Your account is waiting for admin approval.', {
                 _id: user.id,
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                token: generateToken(user._id),
+                status: user.status,
+                message: 'Your account is pending admin approval. You will be notified once approved.'
             });
         } else {
             sendError(res, 400, 'Invalid user data');
@@ -47,17 +49,28 @@ const loginUser = async (req, res) => {
 
         const user = await User.findOne({ email }).select('+password');
 
-        if (user && (await user.matchPassword(password))) {
-            sendSuccess(res, 200, 'User logged in successfully', {
-                _id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                token: generateToken(user._id),
-            });
-        } else {
-            sendError(res, 401, 'Invalid credentials');
+        if (!user || !(await user.matchPassword(password))) {
+            return sendError(res, 401, 'Invalid credentials');
         }
+
+        // Check approval status
+        if (user.status === 'pending') {
+            return sendError(res, 403, 'Your account is pending admin approval. Please wait for approval notification.');
+        }
+
+        if (user.status === 'rejected') {
+            return sendError(res, 403, `Your account has been rejected. Reason: ${user.approvalReason || 'No reason provided'}`);
+        }
+
+        // User is approved
+        sendSuccess(res, 200, 'User logged in successfully', {
+            _id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            status: user.status,
+            token: generateToken(user._id),
+        });
     } catch (error) {
         sendError(res, 500, error.message);
     }

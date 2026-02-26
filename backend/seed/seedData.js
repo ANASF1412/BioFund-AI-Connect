@@ -26,6 +26,8 @@ const seedData = async () => {
                 email: 'admin@test.com',
                 password,
                 role: 'Admin',
+                status: 'approved',  // Admin is auto-approved
+                approvedAt: new Date(),
                 points: 5000,
                 badges: ['Early Adopter', 'Earth Champion']
             },
@@ -34,6 +36,8 @@ const seedData = async () => {
                 email: 'investor@test.com',
                 password,
                 role: 'Investor',
+                status: 'approved',  // Approved investor
+                approvedAt: new Date(),
                 points: 3500,
                 badges: ['Early Adopter', 'Seed Planter']
             },
@@ -42,24 +46,48 @@ const seedData = async () => {
                 email: 'ngo@test.com',
                 password,
                 role: 'NGO',
+                status: 'approved',  // Approved NGO
+                approvedAt: new Date(),
             },
             {
                 name: 'Green Earth NGO',
                 email: 'greenearth@ngo.com',
                 password,
                 role: 'NGO',
+                status: 'approved',
+                approvedAt: new Date(),
             },
             {
                 name: 'Ocean Conservation Corp',
                 email: 'oceancare@ngo.com',
                 password,
                 role: 'NGO',
+                status: 'approved',
+                approvedAt: new Date(),
             },
+            // PENDING USERS - Waiting for admin approval
+            {
+                name: 'Pending Investor',
+                email: 'pending.investor@test.com',
+                password,
+                role: 'Investor',
+                status: 'pending',  // Waiting for approval
+                points: 0,
+                badges: ['Early Adopter']
+            },
+            {
+                name: 'Awaiting NGO User',
+                email: 'pending.ngo@test.com',
+                password,
+                role: 'NGO',
+                status: 'pending',  // Waiting for approval
+            }
         ]);
 
         const ngoUser = users[2]._id;
         const ngoUser2 = users[3]._id;
         const ngoUser3 = users[4]._id;
+        const adminUser = users[0]._id;
 
         const projects = [
             // FOREST PROJECTS - Approved

@@ -15,7 +15,10 @@ const MyInvestments = () => {
         const fetchInvestments = async () => {
             try {
                 const response = await fundingService.getMyInvestments();
-                setData(response);
+                console.log('Investments response:', response);
+                // API response has structure: { success, message, data: { investments, stats } }
+                const { investments = [], stats = { totalInvested: 0, projectsSupported: 0, fundingCount: 0 } } = response.data || response;
+                setData({ investments, stats });
             } catch (error) {
                 console.error('Failed to fetch investments', error);
                 setData({ investments: [], stats: { totalInvested: 0, projectsSupported: 0, fundingCount: 0 } });

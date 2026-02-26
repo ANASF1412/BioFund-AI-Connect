@@ -20,9 +20,11 @@ const InvestorDashboard = () => {
                     projectService.getProjects()
                 ]);
                 const approvedProjects = projRes.data.filter(p => p.status === 'Approved');
+                // API response has structure: { success, message, data: { investments, stats } }
+                const { investments = [], stats = { totalInvested: 0, projectsSupported: 0, fundingCount: 0 } } = fundingRes.data || fundingRes;
                 setData({
-                    investments: fundingRes.investments || [],
-                    stats: fundingRes.stats || { totalInvested: 0, projectsSupported: 0, fundingCount: 0 },
+                    investments,
+                    stats,
                     recentProjects: approvedProjects.slice(0, 3)
                 });
             } catch (error) {

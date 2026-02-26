@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import projectService from '../../services/projectService';
+import reportService from '../../services/reportService';
+import milestoneService from '../../services/milestoneService';
 import Loader from '../../components/common/Loader';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlusCircle, LeafyGreen, Target, TreePine, MapPin, Activity, CheckCircle2, Clock } from 'lucide-react';
@@ -13,6 +15,10 @@ const NgoDashboard = () => {
         stats: { totalRaised: 0, approved: 0, pending: 0, totalImpactTrees: 0 }
     });
     const [loading, setLoading] = useState(true);
+    const [showMilestoneModal, setShowMilestoneModal] = useState(false);
+    const [selectedProjectForMilestone, setSelectedProjectForMilestone] = useState(null);
+    const [milestoneData, setMilestoneData] = useState({ title: '', description: '' });
+    const [isMilestoneSubmitting, setIsMilestoneSubmitting] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -39,6 +45,58 @@ const NgoDashboard = () => {
         };
         fetchData();
     }, [user._id]);
+
+    const handleAddMilestone = () => {
+        if (data.projects.length === 0) {
+            alert('Please create a project first before adding milestones');
+            return;
+        }
+        setSelectedProjectForMilestone(data.projects[0]._id);
+        setShowMilestoneModal(true);
+    };
+
+    const handleSubmitMilestone = async () => {
+        if (!milestoneData.title || !milestoneData.description) {
+            alert('Please fill in all fields');
+            return;
+        }
+
+        setIsMilestoneSubmitting(true);
+        try {
+            await milestoneService.createMilestone({
+                projectId: selectedProjectForMilestone,
+                title: milestoneData.title,
+                description: milestoneData.description,
+                fundsRequested: 0
+            });
+            alert('Milestone added successfully!');
+            setShowMilestoneModal(false);
+            setMilestoneData({ title: '', description: '' });
+        } catch (error) {
+            alert('Failed to add milestone: ' + error.message);
+        } finally {
+            setIsMilestoneSubmitting(false);
+        }
+    };
+
+    const handleGenerateReport = async () => {
+        if (data.projects.length === 0) {
+            alert('No projects to generate report for');
+            return;
+        }
+
+        const approvedProject = data.projects.find(p => p.status === 'Approved');
+        if (!approvedProject) {
+            alert('Please create and approve a project first');
+            return;
+        }
+
+        try {
+            await reportService.downloadProjectReport(approvedProject._id);
+        } catch (error) {
+            alert('Failed to generate report: ' + error.message);
+        }
+    };
 
     if (loading) return <Loader />;
 
@@ -141,16 +199,76 @@ const NgoDashboard = () => {
                     <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-dark-800 dark:to-dark-800 rounded-3xl p-6 border border-amber-100 dark:border-dark-700">
                         <h3 className="font-bold text-slate-900 dark:text-white mb-2">Update Milestones</h3>
                         <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Provide proof-of-work to unlock the next tranche of investor funding securely through the escrows.</p>
-                        <button className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-xl text-sm shadow-md">Add Milestone</button>
+                        <button onClick={handleAddMilestone} className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-xl text-sm shadow-md transition-colors">Add Milestone</button>
                     </div>
                     <div className="bg-gradient-to-br from-teal-50 to-primary-50 dark:from-dark-800 dark:to-dark-800 rounded-3xl p-6 border border-teal-100 dark:border-dark-700">
                         <h3 className="font-bold text-slate-900 dark:text-white mb-2">View Analytics</h3>
                         <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Export geographical data distributions and view investor engagement metrics.</p>
-                        <button className="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 rounded-xl text-sm shadow-md">Generate Report</button>
+                        <button onClick={handleGenerateReport} className="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 rounded-xl text-sm shadow-md transition-colors">Generate Report</button>
                     </div>
                 </div>
             </div>
 
+            {/* Milestone Modal */}
+            <AnimatePresence>
+                {showMilestoneModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            className="bg-white dark:bg-dark-800 rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl"
+                        >
+                            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Add Milestone</h2>
+                            <div className="space-y-4 mb-6">
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Title</label>
+                                    <input
+                                        type="text"
+                                        value={milestoneData.title}
+                                        onChange={(e) => setMilestoneData({ ...milestoneData, title: e.target.value })}
+                                        className="w-full px-4 py-2 border border-slate-200 dark:border-dark-700 rounded-lg bg-white dark:bg-dark-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="Milestone title"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Description</label>
+                                    <textarea
+                                        value={milestoneData.description}
+                                        onChange={(e) => setMilestoneData({ ...milestoneData, description: e.target.value })}
+                                        className="w-full px-4 py-2 border border-slate-200 dark:border-dark-700 rounded-lg bg-white dark:bg-dark-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="Milestone description"
+                                        rows="3"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => {
+                                        setShowMilestoneModal(false);
+                                        setMilestoneData({ title: '', description: '' });
+                                    }}
+                                    className="flex-1 px-4 py-2 border border-slate-200 dark:border-dark-700 rounded-lg text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-50 dark:hover:bg-dark-700 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleSubmitMilestone}
+                                    disabled={isMilestoneSubmitting}
+                                    className="flex-1 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-colors disabled:opacity-50"
+                                >
+                                    {isMilestoneSubmitting ? 'Adding...' : 'Add Milestone'}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

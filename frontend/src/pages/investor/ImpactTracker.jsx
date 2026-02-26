@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import CountUp from 'react-countup';
 import projectService from '../../services/projectService';
 import Loader from '../../components/common/Loader';
@@ -6,6 +7,7 @@ import { motion } from 'framer-motion';
 import { TreePine, Droplets, Target, ArrowUpRight, ShieldCheck, Trophy } from 'lucide-react';
 
 const ImpactTracker = () => {
+    const navigate = useNavigate();
     const [stats, setStats] = useState({
         trees: 0,
         water: 0,
@@ -119,7 +121,7 @@ const ImpactTracker = () => {
                         <h3 className="text-3xl font-black mb-4 leading-tight">Your streak determines your planetary rank.</h3>
                         <p className="text-slate-400 font-medium mb-8 max-w-sm">Every new contribution pushes your impact multiplier up, allowing your dollars to unlock exclusive platform badges.</p>
                         <div className="flex items-center gap-4">
-                            <button className="bg-primary-500 hover:bg-primary-400 text-dark-900 font-bold py-3 px-6 rounded-xl flex items-center gap-2 transition-transform hover:-translate-y-1 hover:shadow-lg hover:shadow-primary-500/20">
+                            <button onClick={() => navigate('/investor/explore')} className="bg-primary-500 hover:bg-primary-400 text-dark-900 font-bold py-3 px-6 rounded-xl flex items-center gap-2 transition-transform hover:-translate-y-1 hover:shadow-lg hover:shadow-primary-500/20">
                                 Keep Streaking <ArrowUpRight size={20} />
                             </button>
                         </div>

@@ -27,6 +27,25 @@ const userSchema = new mongoose.Schema(
             enum: ['Investor', 'NGO', 'Admin'],
             default: 'Investor',
         },
+        // Approval/Admin Status
+        status: {
+            type: String,
+            enum: ['pending', 'approved', 'rejected'],
+            default: 'pending'
+        },
+        approvedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            default: null
+        },
+        approvedAt: {
+            type: Date,
+            default: null
+        },
+        approvalReason: {
+            type: String,
+            default: null
+        },
         // Gamification fields
         points: {
             type: Number,

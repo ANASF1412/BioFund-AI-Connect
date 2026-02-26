@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import projectService from '../../services/projectService';
 import Loader from '../../components/common/Loader';
 import { Pencil, Trash2, Milestone, Eye } from 'lucide-react';
 
 const MyProjects = () => {
+    const navigate = useNavigate();
     const { user } = useAuth();
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -86,13 +88,13 @@ const MyProjects = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-3">
-                                            <button title="View Details" className="text-slate-400 hover:text-primary-600 transition-colors">
+                                            <button onClick={() => navigate(`/ngo/projects/${project._id}`)} title="View Details" className="text-slate-400 hover:text-primary-600 transition-colors">
                                                 <Eye size={18} />
                                             </button>
-                                            <button title="Manage Milestones" className="text-slate-400 hover:text-indigo-600 transition-colors">
+                                            <button onClick={() => alert(`Milestone management for "${project.title}". Navigate to milestone page`)} title="Manage Milestones" className="text-slate-400 hover:text-indigo-600 transition-colors">
                                                 <Milestone size={18} />
                                             </button>
-                                            <button title="Edit Project" className="text-slate-400 hover:text-amber-600 transition-colors">
+                                            <button onClick={() => alert(`Edit project: "${project.title}"`)} title="Edit Project" className="text-slate-400 hover:text-amber-600 transition-colors">
                                                 <Pencil size={18} />
                                             </button>
                                         </td>
